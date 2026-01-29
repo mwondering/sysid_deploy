@@ -55,6 +55,8 @@ class ObjectStateListener:
         self.thread = threading.Thread(target=self._receive_loop, daemon=True)
         self.thread.start()
 
+        self.valid_obj_pose = True
+
     def _receive_loop(self):
         while self.running:
             socks = dict(self.poller.poll(timeout=10))  # 10ms 等待
@@ -78,25 +80,33 @@ class ObjectStateListener:
             if self.obj_socket in socks:
                 message = self.obj_socket.recv_json()
                 # print(message)
-                for pose in message.get("object_det", []):
-                    with self.lock:
-                        self.obj_in_camera[:3] = [
-                            pose["translation"]["x"],
-                            pose["translation"]["y"],
-                            pose["translation"]["z"],
-                        ]
-                        self.obj_in_camera[3:] = [
-                            pose["rotation"]["x"],
-                            pose["rotation"]["y"],
-                            pose["rotation"]["z"],
-                            pose["rotation"]["w"],
-                        ]
+                # print(len(message.get("object_det", [])))
+                objects = message.get("object_det", [])
+                if len(objects) != 1:
+                    self.valid_obj_pose = False
+                else:
+                    self.valid_obj_pose = True
+
+                    for pose in message.get("object_det", []):
+                        with self.lock:
+                            self.obj_in_camera[:3] = [
+                                pose["translation"]["x"],
+                                pose["translation"]["y"],
+                                pose["translation"]["z"],
+                            ]
+                            self.obj_in_camera[3:] = [
+                                pose["rotation"]["x"],
+                                pose["rotation"]["y"],
+                                pose["rotation"]["z"],
+                                pose["rotation"]["w"],
+                            ]
+                    # print(self.obj_in_camera)
                 
 
     def get_latest_transform(self):
         with self.lock:
             # return self.obj_in_camera
-            return transform_object_cam_to_pelvis(self.obj_in_camera, self.camera2pelvis)
+            return (transform_object_cam_to_pelvis(self.obj_in_camera, self.camera2pelvis), self.valid_obj_pose)
         
     def shutdown(self):
         self.running = False

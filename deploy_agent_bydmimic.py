@@ -24,6 +24,7 @@ if __name__ == "__main__":
 
     current_time = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     save_motion_path = f"motions_deployed/save_motion_{current_time}"
+    # import pdb;pdb.set_trace()
     
     args = args.parse_args()
     
@@ -33,7 +34,7 @@ if __name__ == "__main__":
         from env.mujoco_env import MujocoEnv
         env = MujocoEnv(object_name=args.object_name,xml_path = "sysid_xmls/mjcf/g1_modified.xml")
     elif args.env == 'real':
-        from tele_mimic.deploy.env.real_env import RealEnv
+        from env.real_env import RealEnv
         env = RealEnv()
     else:
         raise ValueError(f'invade env name: {args.env}')
@@ -42,7 +43,8 @@ if __name__ == "__main__":
     main_controller.add_controller(amp_controller)
     byd_path_list = [
         # '/home/lenovo/project/BeyondMimic/logs/rsl_rl/g1_flat/2026-01-13_16-42-06_pufu_uniform_sampling_small_tol/exported/policy_15000.onnx',
-        '/home/lenovo/sysid_deploy/onnxs/policy_012901.onnx',
+        # '/home/lenovo/sysid_deploy/onnxs/policy_012901.onnx',
+        '/home/unitree/workspace/sysid_deploy/onnxs/policy_012901.onnx',
     ]
     for idx,byd_path in enumerate(byd_path_list):
         print(idx)
@@ -91,7 +93,7 @@ if __name__ == "__main__":
                 if args.save_motion:
                     if main_controller.cur_controller is not None and (isinstance(main_controller.cur_controller, BydMimicControllerXingyiSysID)):
                         motion_to_save['base_ang_vel'].append(env_data['root_angular'])
-                        motion_to_save['base_lin_vel'].append(env_data['root_linear'])
+                        # motion_to_save['base_lin_vel'].append(env_data['root_linear'])
                         motion_to_save['base_rotation'].append(env_data['root_quat'])
                         motion_to_save['base_pos'].append(env_data['root_pos'])
                         motion_to_save['joint_pos'].append(env_data['joint_pos'])

@@ -225,7 +225,7 @@ class G1Control {
   // ThreadPtr command_writer_ptr_, control_thread_ptr_, joystick_thread_ptr_;
   ThreadPtr command_writer_ptr_, control_thread_ptr_;
   
-  std::string lcm_url="udpm://239.255.76.68:7667?ttl=255";
+  std::string lcm_url="udpm://239.255.76.68:7668?ttl=255";
   lcm::LCM _simpleLCM = lcm::LCM(lcm_url);
   // lcm::LCM _simpleLCM;
   std::thread _simple_LCM_thread;

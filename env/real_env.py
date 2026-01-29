@@ -23,9 +23,13 @@ from common.math_np import (
 
 USE_PRINT = True
 
+
+
+
+
 class RealEnv(BaseEnv):
     
-    def __init__(self, lcm_url: str = "udpm://239.255.76.68:7667?ttl=255"):
+    def __init__(self, lcm_url: str = "udpm://239.255.76.68:7668?ttl=255"):
         # LCM setup
         self.lc = lcm.LCM(lcm_url)
         self.control_dt = 0.02
@@ -60,19 +64,10 @@ class RealEnv(BaseEnv):
         self.lowstate_subscriber = self.lc.subscribe(self.lowstate_topic, self.receive_state_handler)
         self.sportstate_subscriber = self.lc.subscribe(self.sportstate_topic, self.receive_sport_state_handler)
         self.lowcmd_publisher = lambda cmd: self.lc.publish(self.lowcmd_topic, cmd.encode())
-        # 这要改一下？
-        # self.rootstate_listener = RootStateListener("192.168.123.164")
-        # self.objstate_listener = ObjectStateListener("192.168.123.164","192.168.123.164")
-        # 7438
-        self.rootstate_listener = RootStateListener("192.168.155.211")
-        self.objstate_listener = ObjectStateListener("192.168.155.211","192.168.155.211")
-        # 4531
-        # self.rootstate_listener = RootStateListener("192.168.155.190")
-        # self.objstate_listener = ObjectStateListener("192.168.155.190","192.168.155.190")        
-        
-        #第三台
-        # self.rootstate_listener = RootStateListener("192.168.155.190")
-        # self.objstate_listener = ObjectStateListener("192.168.155.190","192.168.155.190")          
+        self.rootstate_listener = RootStateListener("192.168.123.164")
+        self.objstate_listener = ObjectStateListener("192.168.123.164","192.168.123.164")
+
+
         
         # Start LCM poller thread
         self._poller = Thread(target=self.lcm_poller)
@@ -179,20 +174,62 @@ class RealEnv(BaseEnv):
         print(root_state)
         lio_yaw_quat = yaw_quat(np.array(root_state[[6,3,4,5]]))
         imu_yaw_quat = yaw_quat(np.array(self.low_state.quaternion))
+        print("1111111111",imu_yaw_quat)
         self.imu_align_q = quat_mul(lio_yaw_quat, quat_inv(imu_yaw_quat))
 
     def get_env_data(self):
         root_state = self.rootstate_listener.get_latest_transform()
-        # print(root_state)
-        # import ipdb; ipdb.set_trace()
-        # root_state[2] = self.sport_state.position[2] # 里程计
-        # print(root_state[2])
         
-        obj_state = self.objstate_listener.get_latest_transform()
+        slam_z = root_state[2]
+
+        root_state[2] = self.sport_state.position[2]
+
+        odom_z = root_state[2]
+
+        # # 对过低的高度直接clip掉
+        # if root_state[2] + 0.05 < 0.74:
+        #     root_state[2] = 0.74 - 0.05
+
+
+
+        # 目前对于select，可以设计成直接把高度固定住(并且get的时候+了0.05)
+
+        
+
+        # 测试一下层不曾地（楼下注释掉了）
+        root_state[2] = 0.74 # 0.79 - 0.05 ##############
+
+        # root_state[2] = 0.79 # FOR 内马尔10
+ 
+        # root_state[2] = 0.68 ###################
+
+        # if root_state[2] > 0.74:
+        #     root_state[2] = 0.74
+        # elif root_state[2] < 0.70:
+        #     root_state[2] = 0.70
+
+
+
+        # print(root_state[:3])
+        # valid_object用来判断是否识别到了物体，True为识别到了
+        # import pdb;pdb.set_trace()
+        obj_state, valid_object = self.objstate_listener.get_latest_transform()
+
+
+
+        # TODO 这里把物体在pelvis坐标系下的位置手动向右移动一下
+        obj_state[1] -= 0.0
+
+
+
+
+        # valid_object = False
         
         robot_rot = sRot.from_quat(root_state[3:7])
         obj_in_world_rot = robot_rot * sRot.from_quat(obj_state[3:7])
         obj_in_world_trans = robot_rot.apply(np.array(obj_state[:3])) + root_state[:3]
+
+        # print("world obj position:",obj_in_world_trans)
 
         env_data = {
             'joint_pos': np.array([self.low_state.q[i] for i in range(29)], dtype=np.float32),
@@ -207,6 +244,14 @@ class RealEnv(BaseEnv):
             'rel_object_quat': np.array(obj_state[3:7], dtype=np.float32),
             'object_pos': np.array(obj_in_world_trans, dtype=np.float32),
             'object_quat': np.array(obj_in_world_rot.as_quat()[[3,0,1,2]], dtype=np.float32),
+
+            'object_pos_local': np.array(obj_state[:3], dtype=np.float32),
+            'object_quat_local': np.array(obj_state[3:7], dtype=np.float32),
+
+            'valid_object': valid_object,
+
+            'slam_z': slam_z,
+            'odom_z': odom_z,
         }
         
         return env_data
