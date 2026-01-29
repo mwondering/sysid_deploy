@@ -1,0 +1,1 @@
+python deploy_agent.py --env=mujoco --policy_path=all --save_motion  

@@ -1,0 +1,9 @@
+{
+  "policy_path": "/home/lenovo/OpenTrack/experiments/lafan1_generalist_v1.0/checkpoints/000000000001/policy.pt",
+  "motion_pairs": [
+    [
+      "/home/lenovo/OpenTrack/data/mocap/lafan1/UnitreeG1/dance1_subject1.npz",
+      "/home/lenovo/sysid_deploy/motions_deployed/motion_000.pkl"
+    ]
+  ]
+}

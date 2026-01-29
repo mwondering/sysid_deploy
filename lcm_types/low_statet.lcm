@@ -1,0 +1,18 @@
+struct low_state_lcmt
+{   
+    float q[29];
+    float dq[29];
+    float ddq[29];
+    float tau_est[29];
+
+    float quaternion[4];
+    float gyroscope[3];
+    float accelerometer[3];
+    float rpy[3];
+    byte wireless_remote[40];
+    int64_t tick;
+
+    byte mode_pr;
+    byte mode_machine;
+
+}

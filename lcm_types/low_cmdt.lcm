@@ -1,0 +1,10 @@
+struct low_cmd_lcmt
+{
+    float q[29];
+    float dq[29];
+    float tau[29];
+    float kp[29];
+    float kd[29];
+    byte mode_machine;
+    byte mode_pr;
+}
