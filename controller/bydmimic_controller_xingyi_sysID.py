@@ -43,6 +43,7 @@ class BydMimicControllerXingyiSysID(BaseController):
         # get max time step
         output = self.session.run(None, {self.obs_name: np.zeros(self.obs_dim, dtype=np.float32).reshape(1, -1), 
                                        self.time_step_name: np.array([[0]], dtype=np.float32)})
+        # import pdb;pdb.set_trace()
         # import ipdb; ipdb.set_trace()
         print("output[-1] =", output[-1])
         print("output type:", type(output))

@@ -14,7 +14,7 @@ from common.joystick_controller import JoyStickController
 class MujocoEnv(BaseEnv):
     """MuJoCo Env - handless simulation, PD control, and rendering"""
     def __init__(self, 
-                 xml_path: str='sysid_xmls/mjcf/scene_mjx_wholebody_flat_terrain.xml', 
+                 xml_path: str='sysid_xmls/mjcf/g1_only_foot_collision.xml', 
                  dt: float = 0.005, 
                  control_decimation: int = 4,
                  object_name: str='',

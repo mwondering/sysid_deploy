@@ -1,6 +1,6 @@
 from controller.amp_controller import AMPController
 
-from controller.bydmimic_controller_xingyi_sysID import BydMimicControllerXingyiSysID
+
 # from controller.opentrack_controller_xingyi_sysID import OpentrackControllerXingyiSysID
 from controller.controller_manager_xingyi_sysID import ControllerManagerXingyiSysID
 import numpy as np
@@ -18,6 +18,7 @@ if __name__ == "__main__":
     args.add_argument('--object_name',type=str, default="", choices=["largebox"],)
     args.add_argument('--policy_path',type=str, required=True)
     args.add_argument('--save_motion', action='store_true')
+    args.add_argument('--mjlab',type=bool,default=True)
 
     import datetime
     import time
@@ -32,7 +33,7 @@ if __name__ == "__main__":
 
     if args.env == 'mujoco':
         from env.mujoco_env import MujocoEnv
-        env = MujocoEnv(object_name=args.object_name,xml_path = "sysid_xmls/mjcf/g1_modified.xml")
+        env = MujocoEnv(object_name=args.object_name,xml_path = "sysid_xmls/mjcf/g1.xml")
     elif args.env == 'real':
         from env.real_env import RealEnv
         env = RealEnv()
@@ -43,9 +44,14 @@ if __name__ == "__main__":
     main_controller.add_controller(amp_controller)
     byd_path_list = [
         # '/home/lenovo/project/BeyondMimic/logs/rsl_rl/g1_flat/2026-01-13_16-42-06_pufu_uniform_sampling_small_tol/exported/policy_15000.onnx',
-        # '/home/lenovo/sysid_deploy/onnxs/policy_012901.onnx',
-        '/home/unitree/workspace/sysid_deploy/onnxs/policy_012901.onnx',
+        '/home/lenovo/sysid_deploy/onnxs/mjlab_taiji01.onnx',
+        # '/home/unitree/workspace/sysid_deploy/onnxs/policy_012901.onnx',
     ]
+    if args.mjlab:
+        from controller.mjlab_bydmimic_controller_xingyi_sysID import BydMimicControllerXingyiSysID
+    else:
+        from controller.bydmimic_controller_xingyi_sysID import BydMimicControllerXingyiSysID
+
     for idx,byd_path in enumerate(byd_path_list):
         print(idx)
         print("byd_path:", byd_path)
@@ -93,6 +99,8 @@ if __name__ == "__main__":
                 if args.save_motion:
                     if main_controller.cur_controller is not None and (isinstance(main_controller.cur_controller, BydMimicControllerXingyiSysID)):
                         motion_to_save['base_ang_vel'].append(env_data['root_angular'])
+                        if args.env == 'mujoco':
+                            motion_to_save['base_lin_vel'].append(env_data['root_linear'])
                         # motion_to_save['base_lin_vel'].append(env_data['root_linear'])
                         motion_to_save['base_rotation'].append(env_data['root_quat'])
                         motion_to_save['base_pos'].append(env_data['root_pos'])

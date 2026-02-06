@@ -419,14 +419,14 @@
         <motor name="right_wrist_yaw_joint" joint="right_wrist_yaw_joint" forcerange="-5 5"/>
     </actuator>
     
-    <equality>
+    <!-- <equality>
         <weld name="fix_left_foot"
                 body1="world"
                 body2="left_ankle_roll_link"
                 solref="0.02 1"
                 solimp="0.99 0.99 0.001"
                 />
-    </equality>
+    </equality> -->
 
     <sensor>
         <framequat name="base_quat" objtype="site" objname="imu_in_pelvis"/>
