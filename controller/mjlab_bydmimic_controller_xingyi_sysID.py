@@ -18,7 +18,7 @@ from scipy.spatial.transform import Rotation as R
 
 import torch
 
-class BydMimicControllerXingyiSysID(BaseController):
+class MjlabBydMimicControllerXingyiSysID(BaseController):
     def __init__(self, policy_path: str):
         # Load policy
 
@@ -167,6 +167,7 @@ class BydMimicControllerXingyiSysID(BaseController):
         
         # Transform action to target joint positions
         target_q = self.action * action_scale + default_angles
+        # target_q = self.action * 0.5 + default_angles
         self.time_step += 1    
         
         return target_q, self.kps, self.kds

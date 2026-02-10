@@ -1,6 +1,8 @@
 from env.base_env import BaseEnv
 from controller.base_controller import BaseController
 from controller.bydmimic_controller import BydMimicController
+from controller.bydmimic_controller_xingyi_sysID import BydMimicControllerXingyiSysID
+from controller.mjlab_bydmimic_controller_xingyi_sysID import MjlabBydMimicControllerXingyiSysID    
 from controller.default_pos_controller import DefaultPosController
 from controller.zero_torque_controller import ZeroTorqueController
 from controller.amp_controller import AMPController
@@ -35,9 +37,9 @@ class ControllerManagerXingyiSysID:
             controller.reset(self.env.get_env_data())
         self.amp_controller.reset()
         self.set_controller(self.zero_torque_controller)
-    
+
     def check_motion_end(self):
-        if self.cur_controller is not None and (isinstance(self.cur_controller, BydMimicController) ):
+        if self.cur_controller is not None and (isinstance(self.cur_controller, BydMimicController) or isinstance(self.cur_controller, BydMimicControllerXingyiSysID) or isinstance(self.cur_controller, MjlabBydMimicControllerXingyiSysID)):
             if self.cur_controller.time_step >= self.cur_controller.max_time_step - 1:
                 print('Motion ended, switched to default policy')
                 self.cur_idx = 0

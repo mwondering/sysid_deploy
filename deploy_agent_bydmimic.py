@@ -18,7 +18,7 @@ if __name__ == "__main__":
     args.add_argument('--object_name',type=str, default="", choices=["largebox"],)
     args.add_argument('--policy_path',type=str, required=True)
     args.add_argument('--save_motion', action='store_true')
-    args.add_argument('--mjlab',type=bool,default=True)
+    args.add_argument('--mjlab',type=bool,default=False)
 
     import datetime
     import time
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     if args.env == 'mujoco':
         from env.mujoco_env import MujocoEnv
-        env = MujocoEnv(object_name=args.object_name,xml_path = "sysid_xmls/mjcf/g1.xml")
+        env = MujocoEnv(object_name=args.object_name,xml_path = "sysid_xmls/mjcf/g1_unified_only_foot_collision_heavy.xml")
     elif args.env == 'real':
         from env.real_env import RealEnv
         env = RealEnv()
@@ -44,18 +44,22 @@ if __name__ == "__main__":
     main_controller.add_controller(amp_controller)
     byd_path_list = [
         # '/home/lenovo/project/BeyondMimic/logs/rsl_rl/g1_flat/2026-01-13_16-42-06_pufu_uniform_sampling_small_tol/exported/policy_15000.onnx',
-        '/home/lenovo/sysid_deploy/onnxs/mjlab_taiji01.onnx',
+        '/home/lenovo/sysid_deploy/onnxs/tiaogezi03_0210_01.onnx',
         # '/home/unitree/workspace/sysid_deploy/onnxs/policy_012901.onnx',
     ]
-    if args.mjlab:
-        from controller.mjlab_bydmimic_controller_xingyi_sysID import BydMimicControllerXingyiSysID
-    else:
-        from controller.bydmimic_controller_xingyi_sysID import BydMimicControllerXingyiSysID
+
+    from controller.mjlab_bydmimic_controller_xingyi_sysID import MjlabBydMimicControllerXingyiSysID
+
+    from controller.bydmimic_controller_xingyi_sysID import BydMimicControllerXingyiSysID
 
     for idx,byd_path in enumerate(byd_path_list):
         print(idx)
         print("byd_path:", byd_path)
-        main_controller.add_controller(BydMimicControllerXingyiSysID(byd_path))
+        if args.mjlab:
+            # import pdb;pdb.set_trace()
+            main_controller.add_controller(MjlabBydMimicControllerXingyiSysID(byd_path))
+        else:
+            main_controller.add_controller(BydMimicControllerXingyiSysID(byd_path))
 
 
     # Initialize simulation
@@ -97,7 +101,7 @@ if __name__ == "__main__":
                 target_q, kps, kds = main_controller.cur_controller.step(env_data)
 
                 if args.save_motion:
-                    if main_controller.cur_controller is not None and (isinstance(main_controller.cur_controller, BydMimicControllerXingyiSysID)):
+                    if main_controller.cur_controller is not None and (isinstance(main_controller.cur_controller, BydMimicControllerXingyiSysID) or isinstance(main_controller.cur_controller, MjlabBydMimicControllerXingyiSysID)):
                         motion_to_save['base_ang_vel'].append(env_data['root_angular'])
                         if args.env == 'mujoco':
                             motion_to_save['base_lin_vel'].append(env_data['root_linear'])
