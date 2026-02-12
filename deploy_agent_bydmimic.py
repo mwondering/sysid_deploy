@@ -44,7 +44,7 @@ if __name__ == "__main__":
     main_controller.add_controller(amp_controller)
     byd_path_list = [
         # '/home/lenovo/project/BeyondMimic/logs/rsl_rl/g1_flat/2026-01-13_16-42-06_pufu_uniform_sampling_small_tol/exported/policy_15000.onnx',
-        '/home/lenovo/sysid_deploy/onnxs/tiaogezi03_0210_01.onnx',
+        '/home/lenovo/sysid_deploy/onnxs/0210_0209_jump_02_01.onnx',
         # '/home/unitree/workspace/sysid_deploy/onnxs/policy_012901.onnx',
     ]
 

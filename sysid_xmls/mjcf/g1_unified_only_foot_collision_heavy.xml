@@ -257,7 +257,7 @@
                     <joint name="waist_roll_joint" class="waist_roll"/>
                     <geom class="visual" mesh="waist_roll_link"/>
                     <body name="torso_link">
-                        <inertial pos="-0.00052008448 0.000339683 0.025" quat="0.999803 -6.03319e-05 0.0198256 0.00131986"
+                        <inertial pos="-0.00052008448 0.000339683 0.125" quat="0.999803 -6.03319e-05 0.0198256 0.00131986"
                         mass="13.80" diaginertia="0.121847 0.109825 0.0273735"/>
                         <joint name="waist_pitch_joint" class="waist_pitch"/>
                         <geom class="visual" mesh="torso_link"/>
